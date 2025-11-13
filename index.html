@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fakülte Yönetimi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --cu-green: #006b3f;
+      --border: #d4ddd6;
+      --cu-dark: #102820;
+    }
+
+    body {
+      font-family:"Poppins",sans-serif;
+      overflow:hidden; /* masaüstü için */
+    }
+
+    /* ARKA PLAN */
+    .bg-wrapper {
+      position:fixed;
+      inset:0;
+      z-index:-3;
+    }
+    .bg-wrapper iframe {
+      width:100%;
+      height:100%;
+      border:none;
+      pointer-events:none;
+    }
+
+    .bg-overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.18);
+      z-index:-2;
+    }
+
+    /* PANEL – masaüstü için ortalı, scrollbarsız */
+    .panel {
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      width:92%;
+      max-width:520px;
+      background:#ffffff;
+      border-radius:18px;
+      padding:18px 20px 16px;
+      border:1px solid var(--border);
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      z-index:10;
+    }
+
+    /* KAPAT BUTONU */
+    .close-btn {
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      background:#ffffff;
+      border:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      cursor:pointer;
+      color:var(--cu-dark);
+    }
+
+    .panel-title {
+      text-align:center;
+      font-size:18px;
+      font-weight:600;
+      margin-bottom:14px;
+      color:var(--cu-green);
+    }
+
+    /* KARTLAR */
+    .card {
+      background:#ffffff;
+      border-radius:14px;
+      border:1px solid var(--border);
+      padding:14px;
+      margin-bottom:12px;
+      text-align:center;
+      box-shadow:0 3px 8px rgba(0,0,0,0.04);
+    }
+
+    .name {
+      font-size:16px;
+      font-weight:600;
+      margin-top:4px;
+      color:var(--cu-dark);
+    }
+
+    .title {
+      font-size:13px;
+      color:#555;
+      margin-bottom:5px;
+    }
+
+    .info-line {
+      font-size:13px;
+      color:#333;
+      margin:2px 0;
+    }
+    .info-line b { color:var(--cu-green); }
+
+    /* FOTOĞRAFLAR */
+    .photo {
+      width:110px;
+      height:110px;
+      margin:0 auto 10px auto;
+      border-radius:50%;
+      overflow:hidden;
+      border:3px solid var(--cu-green);
+      cursor:pointer;
+    }
+
+    .photo img {
+      width:110px;
+      height:110px;
+      object-fit:cover;
+      border-radius:50%;
+    }
+
+    /* YARDIMCI GRID */
+    .assistant-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    /* FOTO POP-UP (MODAL) */
+    .modal-bg {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.75);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:20px;
+    }
+
+    .modal-box {
+      position:relative;
+      max-width:60%;
+      max-height:70vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .modal-box img {
+      width:auto;
+      height:auto;
+      max-width:100%;
+      max-height:70vh;
+      border-radius:8px;
+      box-shadow:0 0 25px rgba(0,0,0,0.5);
+    }
+
+    .modal-close {
+      position:absolute;
+      top:-45px;
+      right:0;
+      font-size:40px;
+      color:white;
+      cursor:pointer;
+      z-index:1000;
+    }
+
+    /* 📱 TELEFON DÜZENİ – dekan kesilmesin, sayfa kaydırılabilir olsun */
+    @media (max-width: 600px) {
+      body {
+        overflow:auto; /* sayfa kayabilsin, panel içinde scrollbar yok */
+      }
+
+      .panel {
+        position:absolute;
+        top:16px;                 /* dekan yukarıdan görünür */
+        left:50%;
+        transform:translateX(-50%);
+        margin-bottom:24px;       /* altta boşluk */
+      }
+
+      .assistant-grid {
+        grid-template-columns:1fr; /* mobilde alt alta */
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ARKA PLAN -->
+<div class="bg-wrapper">
+  <iframe src="https://ilahiyat.cu.edu.tr/"></iframe>
+</div>
+<div class="bg-overlay" id="overlay"></div>
+
+<!-- ANA PANEL -->
+<div class="panel" id="panelBox">
+  <div class="close-btn" onclick="closePanel()">✕</div>
+  <div class="panel-title">Fakülte Yönetimi</div>
+
+  <!-- DEKAN -->
+  <div class="card">
+    <div class="photo" onclick="openPhoto('https://ilahiyat.cu.edu.tr/storage/fatih%20hoca.jpg')">
+      <img src="https://ilahiyat.cu.edu.tr/storage/fatih%20hoca.jpg" alt="Prof. Dr. Fatih Yahya AYAZ">
+    </div>
+    <div class="name">Prof. Dr. Fatih Yahya AYAZ</div>
+    <div class="title">Dekan V.</div>
+    <div class="info-line"><b>Dâhili:</b> 174</div>
+    <div class="info-line"><b>Telefon:</b> 0322 338 72 17</div>
+    <div class="info-line"><b>E-posta:</b> fyayaz@cu.edu.tr</div>
+  </div>
+
+  <!-- DEKAN YARDIMCILARI -->
+  <div class="assistant-grid">
+
+    <div class="card">
+      <div class="photo" onclick="openPhoto('https://ilahiyat.cu.edu.tr/storage/ayg%C3%BCl%20hoca.jpg')">
+        <img src="https://ilahiyat.cu.edu.tr/storage/ayg%C3%BCl%20hoca.jpg" alt="Doç. Dr. Aygül DÜZENLİ">
+      </div>
+      <div class="name">Doç. Dr. Aygül DÜZENLİ</div>
+      <div class="title">Dekan Yardımcısı</div>
+      <div class="info-line"><b>Dâhili:</b> 144</div>
+      <div class="info-line"><b>Telefon:</b> 0322 338 69 72</div>
+      <div class="info-line"><b>E-posta:</b> aduzenli@cu.edu.tr</div>
+    </div>
+
+    <div class="card">
+      <div class="photo" onclick="openPhoto('https://ilahiyat.cu.edu.tr/storage/tu%C4%9Frul%20hoca.jpg')">
+        <img src="https://ilahiyat.cu.edu.tr/storage/tu%C4%9Frul%20hoca.jpg" alt="Prof. Dr. Tuğrul YÜRÜK">
+      </div>
+      <div class="name">Prof. Dr. Tuğrul YÜRÜK</div>
+      <div class="title">Dekan Yardımcısı</div>
+      <div class="info-line"><b>Dâhili:</b> 118</div>
+      <div class="info-line"><b>Telefon:</b> 0322 338 69 72</div>
+      <div class="info-line"><b>E-posta:</b> tyuruk@cu.edu.tr</div>
+    </div>
+
+  </div>
+
+  <!-- SEKRETER -->
+  <div class="card">
+    <div class="photo" onclick="openPhoto('https://ilahiyat.cu.edu.tr/storage/muazaffer.jpg')">
+      <img src="https://ilahiyat.cu.edu.tr/storage/muazaffer.jpg" alt="Muzaffer ŞAHBAZ">
+    </div>
+    <div class="name">Muzaffer ŞAHBAZ</div>
+    <div class="title">Fakülte Sekreteri</div>
+    <div class="info-line"><b>Dâhili:</b> 127</div>
+    <div class="info-line"><b>Telefon:</b> 0322 338 72 16</div>
+  </div>
+
+</div>
+
+<!-- FOTOĞRAF POP-UP -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-box">
+    <div class="modal-close" onclick="closePhoto()">✕</div>
+    <img id="modalImg" alt="">
+  </div>
+</div>
+
+<script>
+  function closePanel() {
+    const panel   = document.getElementById("panelBox");
+    const overlay = document.getElementById("overlay");
+    const iframe  = document.querySelector(".bg-wrapper iframe");
+
+    panel.style.display   = "none";
+    overlay.style.display = "none";
+    iframe.style.pointerEvents = "auto";
+  }
+
+  function openPhoto(src) {
+    document.getElementById("modalImg").src = src;
+    document.getElementById("modalBg").style.display = "flex";
+  }
+
+  function closePhoto() {
+    document.getElementById("modalBg").style.display = "none";
+    document.getElementById("modalImg").src = "";
+  }
+</script>
+
+</body>
+</html>
